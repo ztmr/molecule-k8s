@@ -1,0 +1,11 @@
+---
+# Most of the systems have sudo, however some container-optimized
+# images don't. This applies to the CentOS container images used for Molecule...
+- name: Prepare
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Ensure sudo
+      raw: yum install -y sudo
+      become: false
+      changed_when: false

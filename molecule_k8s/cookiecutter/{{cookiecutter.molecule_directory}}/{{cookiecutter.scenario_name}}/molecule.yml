@@ -1,0 +1,20 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: k8s
+platforms:
+  - name: default-centos7-${MOLECULE_K8S_SUFFIX:-xyz}
+    namespace: ${MOLECULE_K8S_NAMESPACE:-default}
+    image: centos:7
+    privileged: true
+    command: /sbin/init
+  - name: default-centos8-${MOLECULE_K8S_SUFFIX:-xyz}
+    namespace: ${MOLECULE_K8S_NAMESPACE:-default}
+    image: centos:8
+    privileged: true
+    command: /sbin/init
+provisioner:
+  name: ansible
+verifier:
+  name: ansible

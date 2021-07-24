@@ -1,0 +1,36 @@
+---
+{% raw -%}
+- name: Create
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  no_log: "{{ molecule_no_log }}"
+  vars:
+    molecule_labels:
+      owner: molecule
+  tasks:
+    - name: Create molecule instance(s)
+      # XXX: use community.kubernetes collection instead
+      command:
+        argv:
+          - "kubectl"
+          - "run"
+          - "{{ item.name }}"
+          - "--image={{ item.image|default('centos:8') }}"
+          - "--privileged={{ item.privileged|default(False) }}"
+          - "--namespace={{ item.namespace|default('default', True) }}"
+          - "--"
+          - "{{ item.command|default('sh -c \"while true; do sleep 10000; done\"') }}"
+      register: server
+      with_items: "{{ molecule_yml.platforms }}"
+      no_log: false
+      async: 7200
+      poll: 0
+    - name: Wait for instance(s) creation to complete
+      async_status:
+        jid: "{{ item.ansible_job_id }}"
+      register: k8s_jobs
+      until: k8s_jobs.finished
+      retries: 300
+      with_items: "{{ server.results }}"
+{% endraw -%}
